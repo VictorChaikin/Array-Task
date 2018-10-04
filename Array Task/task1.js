@@ -128,74 +128,108 @@ const subtask2 = ()=>{
 }
 
 ////////////////////////  Third SubTask ///////////////////////////
+function arraySort(firstParam,secondParam,thirdParam){
+	let params =arguments;
+	return function(a,b){
+		for(let i=0;i<params.length;i++){
+			if(a[params[i]] < b[params[i]]){
+				return -1;
+			}
+			if(a[params[i]] > b[params[i]]){
+				return 1;
+			}
+			if(a[params[i]] === b[params[i]] && i === params.length){
+				return 0;
+			}
+		}
+	}
+}
 
 const subtask3 = ()=>{
     const dealersArray = dealerships.reduce((dealerArray,current) => {
-        const currentDealerCarsArray = cars.reduce((carsArray,actual)=>{
+        const currentDealerCars = cars.reduce((dealerCars,actual)=>{
             if(current.dealershipId === actual.dealershipId){
-                carsArray.push([actual.make,actual.model,actual.displayName]);
+				dealerCars.push(actual);
             }
-
-            return carsArray;
+            return dealerCars;
         },[]);
-        currentDealerCarsArray.sort();
+		let currentDealerCarsIds;
+		if(currentDealerCars === []){
+			currentDealerCarsIds = [];
+		}
+		else{
+			currentDealerCars.sort(arraySort("make","model","displayName"));
+			currentDealerCarsIds = currentDealerCars.reduce((mas,running)=>{
+				mas.push(running.id);
+				return mas;
+			},[]);
+		}
+
         const obj={
-            dealershipId: current.dealershipId, // *
+            dealershipId: current.dealershipId,
             name: current.name,
             state: current.state,
-            carIds: currentDealerCarsArray
+            carIds: currentDealerCarsIds
         };
         dealerArray.push(obj);
         return dealerArray;
     },[]);
-    task3Array = dealersArray;
     return dealersArray;
 }
 ////////////////////////  Forth SubTask ///////////////////////////
 
 const subtask4 = (list) => {
+	const sortList = list.sort(arraySort("state","carIds.length"));
     const dealersArray = list.reduce((array,current)=>{
-        const elem={
-            state :current.state,
-            carIds : current.carIds.length,
-			dealershipId: current.dealershipId,
-			name: current.name
-        };
-		array.push(elem);
+
+		array.push(current);
 		return array;
     },[]);
-    return dealersArray.sort();
+    return dealersArray;
 }
 
 ////////////////////////  Fifth SubTask ///////////////////////////
 
-const subtask5 = (list,minId, maxId, isReversed) => {
-	const dealersArray = list.reduce((array,current)=>{
-		if(isReversed === true){
-		    if(current.dealershipId > minId && current.dealershipId < maxId){
-				const elem={
-					dealershipId: current.dealershipId,
-					name: current.name,
-					state: current.state,
-					carIds: current.carIds.length
-				};
-				array.push(elem);
+const subtask5 = (minId, maxId, isReversed) => {
+	const dealersArray = dealerships.reduce((dealerArray,current) => {
+		function doTask(){
+			const currentDealerCars = cars.reduce((dealerCars, actual) => {
+				if (current.dealershipId === actual.dealershipId) {
+					dealerCars.push(actual);
+				}
+				return dealerCars;
+			}, []);
+			let currentDealerCarsIds;
+			if (currentDealerCars === []) {
+				currentDealerCarsIds = [];
 			}
-        }
-        else{
-			if(current.dealershipId < minId && current.dealershipId > maxId){
-				const elem={
-					dealershipId: current.dealershipId,
-					name: current.name,
-					state: current.state,
-					carIds: current.carIds.length
-				};
-				array.push(elem);
+			else {
+				currentDealerCars.sort(arraySort("make", "model", "displayName"));
+				currentDealerCarsIds = currentDealerCars.reduce((mas, running) => {
+					mas.push(running.id);
+					return mas;
+				}, []);
 			}
-        }
-		return array;
 
+			const obj = {
+				dealershipId: current.dealershipId,
+				name: current.name,
+				state: current.state,
+				carIds: currentDealerCarsIds
+			};
+			dealerArray.push(obj);
+		}
+
+		if( isReversed === true && current.dealershipId > minId && current.dealershipId < maxId) {
+			doTask();
+		}
+		else if(isReversed === false && !(current.dealershipId > minId && current.dealershipId < maxId)) {
+			doTask();
+		}
+
+		return dealerArray;
 	},[]);
+
 	return dealersArray;
 }
 
@@ -204,13 +238,7 @@ const subtask5 = (list,minId, maxId, isReversed) => {
 const subtask6 = (list, minCarsCount) => {
     const dealersArray = list.reduce((array,current)=>{
         if(current.carIds.length > minCarsCount){
-            const elem={
-				dealershipId: current.dealershipId, // *
-				name: current.name,
-				state: current.state,
-				carIds: current.carIds.length
-            };
-			array.push(elem);
+			array.push(current);
         }
         return array;
 
@@ -219,34 +247,34 @@ const subtask6 = (list, minCarsCount) => {
 }
 
 console.time('subtask #1')
-const result1 = subtask1()
-console.timeEnd('subtask #1')
-console.log('subtask #1 result: ', JSON.stringify(result1[24], null, 2), JSON.stringify(result1[result1.length - 24], null, 2))
-
-console.time('subtask #2')
-const result2 = subtask2()
-console.timeEnd('subtask #2')
-console.log('subtask #2 result: ', JSON.stringify(result2[0], null, 2), JSON.stringify(result2[result2.length - 1], null, 2))
+ const result1 = subtask1()
+ console.timeEnd('subtask #1')
+// //console.log('subtask #1 result: ', JSON.stringify(result1[24], null, 2), JSON.stringify(result1[result1.length - 24], null, 2))
+//
+ console.time('subtask #2')
+ const result2 = subtask2()
+ console.timeEnd('subtask #2')
+// //console.log('subtask #2 result: ', JSON.stringify(result2[0], null, 2), JSON.stringify(result2[result2.length - 1], null, 2))
 
 console.time('subtask #3')
 const result3 = subtask3();
 console.timeEnd('subtask #3')
-console.log('subtask #3 result: ', JSON.stringify(result3[0], null, 2), JSON.stringify(result3[result3.length - 1], null, 2))
+//console.log('subtask #3 result: ', JSON.stringify(result3[0], null, 2), JSON.stringify(result3[result3.length - 1], null, 2))
 
 console.time('subtask #4')
 const result4 = subtask4(result3);
 console.timeEnd('subtask #4')
-console.log('subtask #4 result: ', JSON.stringify(result4[0], null, 2), JSON.stringify(result4[result4.length - 1], null, 2))
+//console.log('subtask #4 result: ', JSON.stringify(result4[0], null, 2), JSON.stringify(result4[result4.length - 1], null, 2))
 
-console.time('subtask #5')
-const result5 = subtask5(result3,100000,100200,true);
-console.timeEnd('subtask #5')
-console.log('subtask #5 result: ', JSON.stringify(result5[0], null, 2), JSON.stringify(result5[result5.length - 1], null, 2))
+ console.time('subtask #5')
+ const result5 = subtask5(100000,100200,true);
+ console.timeEnd('subtask #5')
+//console.log('subtask #5 result: ', JSON.stringify(result5[0], null, 2), JSON.stringify(result5[result5.length - 1], null, 2))
 
 console.time('subtask #6')
 const result6 = subtask6(result3,100);
 console.timeEnd('subtask #6');
-console.log('subtask #6 result: ', JSON.stringify(result6[0], null, 2), JSON.stringify(result6[result6.length - 1], null, 2))
+//console.log('subtask #6 result: ', JSON.stringify(result6[0], null, 2), JSON.stringify(result6[result6.length - 1], null, 2))
 
 
 module.exports = {
@@ -257,3 +285,95 @@ module.exports = {
     subtask5,
     subtask6
 }
+
+/**
+ *  SUBTASK #1
+ *
+ * This is a Grouping logic. In this example it means that * - unique field and ** - an array of unique values.
+ *
+ * Should return an array with the next structure:
+ * [
+ *      {
+ *          dealershipId: number, // *
+ *          name: string,
+ *          state: string,
+ *          cars: [
+ *              {
+ *                  make: string, // *
+ *                  models: [
+ *                      {
+ *                          model: string, // *
+ *                          displayNames: [string, ...] // **
+ *                      }, ...
+ *                  ]
+ *              }, ...
+ *          ]
+ *      }, ...
+ * ]
+ * @returns {Array}
+ */
+
+
+/**
+ *  SUBTASK #2
+ *
+ * Should return an array with the next structure:
+ * [
+ *      {
+ *          dealershipId: number, // *
+ *          name: string,
+ *          state: string,
+ *          sellingArea: [
+ *              {
+ *                  state: string, // *
+ *                  customerIds: [string, ...] // **
+ *              }, ...
+ *          ]
+ *      }, ...
+ * ]
+ *
+ * @returns {Array}
+ */
+
+/**
+ *  SUBTASK #3
+ *
+ * Should return an array with the next structure:
+ * [
+ *      {
+ *          dealershipId: number, // *
+ *          name: string,
+ *          state: string,
+ *          carIds: [string, ...] <--- cars should be sorted by fields in the next priority : [make -> model -> displayName] (all ASC)
+ *      }, ...
+ * ]
+ *
+ * @returns {Array}
+ */
+
+
+/**
+ * SUBTASK #4
+ *
+ * @param {Array} list an array from subtask #3
+ * @returns {Array} sorted array from subtask #3 by the next prio of fields : [state -> count of carIds] (ASC -> DESC)
+ */
+
+
+/**
+ * SUBTASK #5
+ *
+ * @param {number} minId [default = 100000]
+ * @param {number} maxId [default = 100200]
+ * @param {boolean} isReversed if set to true then reverse task logic (IN -> NOT IN)
+ * @returns {Array} the same result as in subtask #3 but this logic should work only with those dealership whose dealershipId IN (NOT IN) [minId, maxId]
+ */
+
+
+/**
+ * Should return all dealerships (new list) who has enough cars (dealership.carIds > minCarsCount).
+ *
+ * @param {Array} list
+ * @param {number} minCarsCount [default = 100]
+ * @returns {Array} filtered dealersips
+ */
